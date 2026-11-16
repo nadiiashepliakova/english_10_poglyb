@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Тренажер: Фразові дієслова</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9edf5 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 12px;
+            padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+        }
+        .card {
+            background: #ffffff;
+            max-width: 840px;
+            width: 100%;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 30, 0.25), 0 4px 18px rgba(0, 0, 0, 0.05);
+            padding: clamp(16px, 4vw, 32px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            margin-top: 8px;
+        }
+        h1 {
+            font-size: clamp(1.25rem, 3.5vw, 1.8rem);
+            font-weight: 600;
+            color: #1e2b3c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            letter-spacing: -0.02em;
+            flex-wrap: wrap;
+        }
+        h1 span {
+            background: #2d4059;
+            color: white;
+            font-size: clamp(0.75rem, 2vw, 1.1rem);
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-weight: 500;
+        }
+
+        /* --- Вкладки: горизонтальний скрол на вузьких екранах --- */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            background: #eef3f8;
+            padding: 6px;
+            border-radius: 60px;
+            margin-bottom: 22px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            flex: 1 0 auto;
+            min-width: fit-content;
+            white-space: nowrap;
+            background: transparent;
+            border: none;
+            padding: 11px 14px;
+            border-radius: 40px;
+            font-size: clamp(0.72rem, 1.6vw, 0.92rem);
+            font-weight: 600;
+            color: #4a627a;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+        .tab-btn:hover { color: #1e3a5f; }
+        .tab-btn.active {
+            background: white;
+            color: #1e3a5f;
+            box-shadow: 0 4px 12px -4px rgba(30, 58, 95, 0.25);
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* --- СПІЛЬНЕ --- */
+        .subhead {
+            color: #5a6f84;
+            margin-bottom: 18px;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            border-left: 4px solid #7c9eb2;
+            padding-left: 14px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #eef3f8;
+            padding: 12px 16px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: #1e3a5f;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: clamp(0.8rem, 1.9vw, 0.95rem);
+        }
+        .stats i {
+            font-style: normal;
+            background: #cbdae8;
+            border-radius: 30px;
+            padding: 2px 12px;
+            font-weight: 600;
+        }
+
+        /* --- ТЕСТ --- */
+        .question-box {
+            background: #f0f6fe;
+            border-radius: 24px;
+            padding: clamp(16px, 4vw, 24px) clamp(14px, 3vw, 20px);
+            margin-bottom: 20px;
+            border: 1px solid #d6e2ef;
+            box-shadow: 0 6px 12px -6px rgba(0, 30, 60, 0.1);
+        }
+        .prompt {
+            font-size: clamp(1.15rem, 3.5vw, 1.6rem);
+            font-weight: 600;
+            color: #1e3a5f;
+            text-align: center;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        .prompt small {
+            display: block;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-weight: 400;
+            color: #54738f;
+            margin-top: 8px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 18px 0 10px;
+        }
+        .option-btn {
+            background: white;
+            border: 2px solid #d0deed;
+            border-radius: 16px;
+            padding: clamp(10px, 2.5vw, 14px) 8px;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            font-weight: 500;
+            color: #1e2b3c;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            text-align: center;
+            font-family: inherit;
+            word-break: break-word;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #e1edff;
+            border-color: #7fa3c2;
+            transform: translateY(-2px);
+        }
+        .option-btn.correct:disabled {
+            background: #cfe8d8;
+            border-color: #2e7d5e;
+            color: #1b4d3a;
+            opacity: 1;
+        }
+        .option-btn.wrong:disabled {
+            background: #ffdede;
+            border-color: #c25b5b;
+            color: #8b2f2f;
+            opacity: 1;
+            text-decoration: line-through 2px rgba(180, 60, 60, 0.4);
+        }
+        .option-btn:disabled { cursor: default; }
+        .feedback {
+            min-height: 46px;
+            text-align: center;
+            font-size: clamp(0.88rem, 2vw, 1rem);
+            font-weight: 500;
+            margin: 14px 0 8px;
+            padding: 10px 16px;
+            border-radius: 60px;
+            background: #f8fafd;
+        }
+        .feedback.correct-msg { background: #dff0e6; color: #1b6b4a; }
+        .feedback.wrong-msg { background: #ffe8e8; color: #b13e3e; }
+        .btn {
+            background: #2d4059;
+            border: 1px solid #1e2b3c;
+            color: white;
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2.2vw, 1rem);
+            padding: clamp(12px, 3vw, 15px) clamp(18px, 4vw, 28px);
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .btn:hover:not(:disabled) { background: #1f2e42; }
+        .btn:disabled { background: #b7c6d8; cursor: not-allowed; border-color: #a0b2c5; }
+        .reset-container { display: flex; justify-content: flex-end; margin-top: 12px; }
+        .reset-btn {
+            background: transparent;
+            border: 2px solid #cbdae8;
+            color: #3e5e7a;
+            padding: 9px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 1.9vw, 0.9rem);
+            cursor: pointer;
+            transition: all 0.12s;
+            font-family: inherit;
+        }
+        .reset-btn:hover { background: #e9f0f8; border-color: #90aec9; }
+
+        /* --- FLASH-КАРТКИ --- */
+        .flash-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .flash-counter {
+            font-weight: 600;
+            color: #1e3a5f;
+            background: #eef3f8;
+            padding: 7px 16px;
+            border-radius: 40px;
+            font-size: clamp(0.82rem, 2vw, 0.95rem);
+        }
+        .flash-direction {
+            display: flex;
+            background: #eef3f8;
+            border-radius: 40px;
+            padding: 4px;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .dir-btn {
+            background: transparent;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 30px;
+            font-size: clamp(0.72rem, 1.8vw, 0.85rem);
+            font-weight: 600;
+            color: #4a627a;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.12s;
+        }
+        .dir-btn.active {
+            background: white;
+            color: #1e3a5f;
+            box-shadow: 0 3px 8px -3px rgba(30, 58, 95, 0.3);
+        }
+
+        .know-panel {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .know-btn {
+            flex: 1;
+            padding: clamp(10px, 2.8vw, 14px) 8px;
+            border-radius: 40px;
+            border: 2px solid transparent;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .know-btn.know {
+            background: #e3f5ec;
+            color: #1b6b4a;
+            border-color: #b6e0ca;
+        }
+        .know-btn.know:hover {
+            background: #cfeede;
+            border-color: #7fc9a4;
+            transform: translateY(-1px);
+        }
+        .know-btn.dont-know {
+            background: #ffecec;
+            color: #b13e3e;
+            border-color: #f5c6c6;
+        }
+        .know-btn.dont-know:hover {
+            background: #ffdede;
+            border-color: #e89a9a;
+            transform: translateY(-1px);
+        }
+
+        .flashcard-wrapper {
+            perspective: 1400px;
+            width: 100%;
+            height: clamp(200px, 45vw, 280px);
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(16px, 4vw, 28px);
+            text-align: center;
+            box-shadow: 0 16px 30px -14px rgba(30, 58, 95, 0.35);
+        }
+        .flashcard-front {
+            background: linear-gradient(135deg, #ffffff 0%, #eef5fc 100%);
+            border: 2px solid #d0deed;
+        }
+        .flashcard-back {
+            background: linear-gradient(135deg, #2d4059 0%, #1f2e42 100%);
+            color: white;
+            transform: rotateY(180deg);
+            border: 2px solid #1e2b3c;
+        }
+        .flashcard-label {
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            opacity: 0.5;
+        }
+        .flashcard-front .flashcard-label { color: #5a7590; }
+        .flashcard-back .flashcard-label { color: #a9c3db; }
+        .flashcard-text {
+            font-size: clamp(1.05rem, 4vw, 1.7rem);
+            font-weight: 700;
+            line-height: 1.35;
+            word-break: break-word;
+            letter-spacing: -0.01em;
+        }
+        .flashcard-front .flashcard-text { color: #1e3a5f; }
+        .flashcard-back .flashcard-text { color: #ffffff; }
+        .flashcard-hint {
+            position: absolute;
+            bottom: 12px;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            opacity: 0.55;
+            font-weight: 500;
+            color: #54738f;
+        }
+        .flashcard-back .flashcard-hint { color: #a9c3db; }
+
+        .flash-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .flash-nav .btn {
+            padding: 11px 10px;
+            font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+        }
+        .btn-outline {
+            background: white;
+            color: #2d4059;
+            border: 2px solid #d0deed;
+        }
+        .btn-outline:hover:not(:disabled) { background: #eef5fc; border-color: #90aec9; }
+        .btn-outline:disabled { background: #f5f8fc; color: #b7c6d8; border-color: #e2ebf4; cursor: not-allowed; }
+
+        .flash-progress {
+            height: 8px;
+            background: #e4ecf4;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .flash-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c9eb2, #2d4059);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .learned-banner {
+            display: none;
+            text-align: center;
+            background: linear-gradient(135deg, #dff0e6, #cfe8d8);
+            color: #1b6b4a;
+            border-radius: 24px;
+            padding: clamp(16px, 4vw, 24px);
+            margin-bottom: 18px;
+            border: 2px solid #b6e0ca;
+        }
+        .learned-banner.show { display: block; }
+        .learned-banner h2 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin-bottom: 8px;
+            color: #1b6b4a;
+        }
+        .learned-banner p {
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            color: #2e7d5e;
+        }
+
+        .learned-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .learned-chip {
+            background: white;
+            border: 1px solid #b6e0ca;
+            color: #1b6b4a;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: clamp(0.68rem, 1.6vw, 0.8rem);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           ВПРАВА НА З'ЄДНАННЯ (MATCHING)
+           ============================================================ */
+        .match-intro {
+            background: #f0f6fe;
+            border-radius: 20px;
+            padding: clamp(12px, 3vw, 16px) clamp(14px, 3vw, 20px);
+            margin-bottom: 18px;
+            font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+            color: #3e5e7a;
+            border: 1px solid #d6e2ef;
+            line-height: 1.5;
+        }
+        .match-intro strong { color: #1e3a5f; }
+
+        .match-scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            background: #eef3f8;
+            border-radius: 60px;
+            padding: 10px 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: clamp(0.8rem, 1.9vw, 0.95rem);
+        }
+        .match-scoreboard .score-badge {
+            background: #2d4059;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+        .match-scoreboard .score-badge span { color: #ffd166; }
+
+        .match-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(10px, 2vw, 18px);
+            margin-bottom: 18px;
+        }
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .match-column-title {
+            text-align: center;
+            font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #7c93a8;
+            margin-bottom: 4px;
+        }
+        .match-item {
+            background: white;
+            border: 2px solid #d0deed;
+            border-radius: 14px;
+            padding: clamp(8px, 2vw, 12px) clamp(10px, 2.4vw, 14px);
+            font-size: clamp(0.78rem, 1.9vw, 0.9rem);
+            font-weight: 500;
+            color: #1e2b3c;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            text-align: left;
+            line-height: 1.4;
+            position: relative;
+            min-height: clamp(42px, 10vw, 52px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .match-item:hover:not(.matched):not(.disabled) {
+            background: #eef5fc;
+            border-color: #90aec9;
+            transform: translateY(-1px);
+        }
+        .match-item.selected {
+            background: #fff4d6;
+            border-color: #f0b429;
+            box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.2);
+        }
+        .match-item.matched {
+            background: #e3f5ec;
+            border-color: #7fc9a4;
+            color: #1b6b4a;
+            cursor: default;
+        }
+        .match-item.correct-pair {
+            background: #dff0e6;
+            border-color: #2e7d5e;
+            color: #1b4d3a;
+        }
+        .match-item.wrong-pair {
+            background: #ffe8e8;
+            border-color: #c25b5b;
+            color: #8b2f2f;
+            text-decoration: line-through 1.5px rgba(180, 60, 60, 0.4);
+        }
+        .match-item.disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+        .match-item .badge {
+            flex-shrink: 0;
+            width: clamp(20px, 5vw, 24px);
+            height: clamp(20px, 5vw, 24px);
+            border-radius: 50%;
+            background: #eef3f8;
+            color: #5a7590;
+            font-size: clamp(0.62rem, 1.5vw, 0.75rem);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .match-item.matched .badge,
+        .match-item.correct-pair .badge {
+            background: #2e7d5e;
+            color: white;
+        }
+        .match-item.wrong-pair .badge {
+            background: #c25b5b;
+            color: white;
+        }
+        .match-item .text {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .match-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .match-actions .btn { flex: 1; min-width: 130px; }
+        .btn-check {
+            background: #2e7d5e;
+            border-color: #1b4d3a;
+        }
+        .btn-check:hover:not(:disabled) { background: #256b4f; }
+        .btn-check:disabled { background: #b7c6d8; border-color: #a0b2c5; }
+
+        .match-result {
+            margin-top: 14px;
+            padding: 16px 18px;
+            border-radius: 20px;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+        .match-result.show { display: block; }
+        .match-result.perfect {
+            background: linear-gradient(135deg, #dff0e6, #cfe8d8);
+            color: #1b6b4a;
+            border: 2px solid #b6e0ca;
+        }
+        .match-result.good {
+            background: #fff4d6;
+            color: #8a6100;
+            border: 2px solid #f5d78e;
+        }
+        .match-result.poor {
+            background: #ffe8e8;
+            color: #b13e3e;
+            border: 2px solid #f5c6c6;
+        }
+
+        /* ============================================================
+           ВПРАВА НА ВВЕДЕННЯ (TYPING)
+           ============================================================ */
+        .typing-intro {
+            background: #f0f6fe;
+            border-radius: 20px;
+            padding: clamp(12px, 3vw, 16px) clamp(14px, 3vw, 20px);
+            margin-bottom: 18px;
+            font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+            color: #3e5e7a;
+            border: 1px solid #d6e2ef;
+            line-height: 1.5;
+        }
+        .typing-intro strong { color: #1e3a5f; }
+
+        .typing-scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            background: #eef3f8;
+            border-radius: 60px;
+            padding: 10px 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: clamp(0.8rem, 1.9vw, 0.95rem);
+        }
+        .typing-scoreboard .score-badge {
+            background: #2d4059;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+        .typing-scoreboard .score-badge span { color: #ffd166; }
+
+        .typing-card {
+            background: #f0f6fe;
+            border-radius: 24px;
+            padding: clamp(16px, 4vw, 28px) clamp(14px, 3vw, 24px);
+            margin-bottom: 18px;
+            border: 1px solid #d6e2ef;
+            box-shadow: 0 6px 12px -6px rgba(0, 30, 60, 0.1);
+        }
+        .typing-definition {
+            font-size: clamp(1rem, 2.8vw, 1.25rem);
+            font-weight: 600;
+            color: #1e3a5f;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            min-height: 60px;
+        }
+        .typing-input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .typing-input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 18px;
+            font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+            font-family: inherit;
+            font-weight: 600;
+            color: #1e3a5f;
+            background: white;
+            border: 2px solid #d0deed;
+            border-radius: 60px;
+            outline: none;
+            transition: all 0.15s;
+        }
+        .typing-input:focus {
+            border-color: #7fa3c2;
+            box-shadow: 0 0 0 4px rgba(127, 163, 194, 0.2);
+        }
+        .typing-input:disabled {
+            background: #f5f8fc;
+            color: #8a9eb0;
+        }
+        .typing-input.correct-input {
+            border-color: #2e7d5e;
+            background: #e3f5ec;
+            color: #1b4d3a;
+        }
+        .typing-input.wrong-input {
+            border-color: #c25b5b;
+            background: #ffe8e8;
+            color: #8b2f2f;
+            text-decoration: line-through 1.5px rgba(180, 60, 60, 0.4);
+        }
+        .btn-submit {
+            background: #2e7d5e;
+            border-color: #1b4d3a;
+            flex: 0 0 auto;
+            width: auto;
+            padding: 14px 22px;
+            font-size: clamp(0.88rem, 2vw, 1rem);
+        }
+        .btn-submit:hover:not(:disabled) { background: #256b4f; }
+        .btn-submit:disabled { background: #b7c6d8; border-color: #a0b2c5; }
+
+        .typing-feedback {
+            min-height: 46px;
+            text-align: center;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 500;
+            margin-top: 14px;
+            padding: 10px 16px;
+            border-radius: 60px;
+            background: #f8fafd;
+        }
+        .typing-feedback.correct-msg { background: #dff0e6; color: #1b6b4a; }
+        .typing-feedback.wrong-msg { background: #ffe8e8; color: #b13e3e; }
+
+        .typing-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .typing-controls .btn { flex: 1; min-width: 130px; }
+
+        .typing-result {
+            margin-top: 14px;
+            padding: 16px 18px;
+            border-radius: 20px;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+        .typing-result.show { display: block; }
+        .typing-result.perfect {
+            background: linear-gradient(135deg, #dff0e6, #cfe8d8);
+            color: #1b6b4a;
+            border: 2px solid #b6e0ca;
+        }
+        .typing-result.good {
+            background: #fff4d6;
+            color: #8a6100;
+            border: 2px solid #f5d78e;
+        }
+        .typing-result.poor {
+            background: #ffe8e8;
+            color: #b13e3e;
+            border: 2px solid #f5c6c6;
+        }
+        .typing-hint {
+            font-size: clamp(0.75rem, 1.7vw, 0.85rem);
+            color: #7c93a8;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ============================================================
+           ВПРАВА НА ЗАПОВНЕННЯ ПРОПУСКІВ (GAP FILL)
+           ============================================================ */
+        .gap-intro {
+            background: linear-gradient(135deg, #f0f6fe, #eef5fc);
+            border-radius: 20px;
+            padding: clamp(14px, 3vw, 18px) clamp(16px, 3vw, 22px);
+            margin-bottom: 18px;
+            font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+            color: #3e5e7a;
+            border: 1px solid #d6e2ef;
+            line-height: 1.6;
+        }
+        .gap-intro strong { color: #1e3a5f; }
+        .gap-intro .theme-badge {
+            display: inline-block;
+            background: #2d4059;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .gap-reference {
+            margin-top: 10px;
+            font-size: clamp(0.72rem, 1.7vw, 0.85rem);
+            color: #5a7590;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .gap-scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            background: #eef3f8;
+            border-radius: 60px;
+            padding: 10px 18px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: clamp(0.8rem, 1.9vw, 0.95rem);
+        }
+        .gap-scoreboard .score-badge {
+            background: #2d4059;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+        .gap-scoreboard .score-badge span { color: #ffd166; }
+
+        .gap-progress {
+            height: 8px;
+            background: #e4ecf4;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .gap-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c9eb2, #2d4059);
+            border-radius: 20px;
+            transition: width 0.35s ease;
+            width: 0%;
+        }
+
+        .gap-sentence {
+            background: #f8fafd;
+            border: 2px solid #e2ebf4;
+            border-radius: 18px;
+            padding: clamp(12px, 3vw, 20px) clamp(14px, 3vw, 22px);
+            margin-bottom: 14px;
+            font-size: clamp(0.88rem, 2vw, 1rem);
+            line-height: 1.7;
+            color: #1e2b3c;
+            transition: all 0.2s ease;
+        }
+        .gap-sentence.answered-correct {
+            background: #eefaf2;
+            border-color: #b6e0ca;
+        }
+        .gap-sentence.answered-wrong {
+            background: #fef2f2;
+            border-color: #f5c6c6;
+        }
+        .gap-sentence .gap-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(20px, 5vw, 24px);
+            height: clamp(20px, 5vw, 24px);
+            background: #2d4059;
+            color: white;
+            font-size: clamp(0.65rem, 1.6vw, 0.75rem);
+            font-weight: 700;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .gap-input {
+            display: inline-block;
+            width: clamp(110px, 22vw, 170px);
+            max-width: 100%;
+            padding: 6px 10px;
+            margin: 4px 4px;
+            font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+            font-family: inherit;
+            font-weight: 600;
+            color: #1e3a5f;
+            background: white;
+            border: 2px solid #c5d5e5;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        .gap-input:focus {
+            border-color: #7fa3c2;
+            box-shadow: 0 0 0 3px rgba(127, 163, 194, 0.2);
+        }
+        .gap-input:disabled {
+            background: #f5f8fc;
+            color: #5a7590;
+        }
+        .gap-input.correct-input {
+            border-color: #2e7d5e;
+            background: #dff0e6;
+            color: #1b4d3a;
+        }
+        .gap-input.wrong-input {
+            border-color: #c25b5b;
+            background: #ffe8e8;
+            color: #8b2f2f;
+        }
+        .gap-correction {
+            display: none;
+            font-size: clamp(0.72rem, 1.7vw, 0.85rem);
+            font-weight: 700;
+            color: #2e7d5e;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .gap-correction.show { display: inline; }
+        .gap-hint-line {
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            color: #7c93a8;
+            margin-top: 6px;
+            margin-left: clamp(24px, 6vw, 32px);
+        }
+
+        .gap-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .gap-actions .btn { flex: 1; min-width: 130px; }
+        .btn-gap-check {
+            background: #2e7d5e;
+            border-color: #1b4d3a;
+        }
+        .btn-gap-check:hover:not(:disabled) { background: #256b4f; }
+        .btn-gap-check:disabled { background: #b7c6d8; border-color: #a0b2c5; }
+
+        .gap-result {
+            margin-top: 16px;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            line-height: 1.5;
+        }
+        .gap-result.show { display: block; }
+        .gap-result.perfect {
+            background: linear-gradient(135deg, #dff0e6, #cfe8d8);
+            color: #1b6b4a;
+            border: 2px solid #b6e0ca;
+        }
+        .gap-result.good {
+            background: #fff4d6;
+            color: #8a6100;
+            border: 2px solid #f5d78e;
+        }
+        .gap-result.poor {
+            background: #ffe8e8;
+            color: #b13e3e;
+            border: 2px solid #f5c6c6;
+        }
+
+        /* ============================================================
+           BREAKPOINTS
+           ============================================================ */
+
+        /* Планшети (від 600px) */
+        @media (min-width: 600px) {
+            .card { max-width: 720px; }
+        }
+
+        /* Ноутбуки/десктоп (від 900px) */
+        @media (min-width: 900px) {
+            .card { max-width: 840px; padding: 32px; }
+        }
+
+        /* Дуже великі екрани */
+        @media (min-width: 1200px) {
+            body { padding: 32px; }
+            .card { max-width: 880px; }
+        }
+
+        /* Мобільні (до 540px) */
+        @media (max-width: 540px) {
+            body { padding: 8px; }
+            .card { border-radius: 24px; padding: 16px 14px; }
+            .tabs { border-radius: 24px; padding: 5px; margin-bottom: 18px; }
+            .tab-btn { padding: 9px 10px; border-radius: 20px; }
+            .options-grid { grid-template-columns: 1fr; gap: 8px; }
+            .match-board { grid-template-columns: 1fr; gap: 18px; }
+            .match-item { min-height: 46px; }
+            .typing-input-row { flex-direction: column; }
+            .btn-submit { width: 100%; }
+            .flash-direction { width: 100%; justify-content: center; }
+            .flash-controls { justify-content: center; }
+            .stats { font-size: 0.8rem; }
+            .stats i { padding: 2px 9px; }
+            .reset-container { justify-content: center; }
+            .reset-btn { width: 100%; text-align: center; }
+            .typing-controls .btn,
+            .match-actions .btn,
+            .gap-actions .btn { min-width: 100%; }
+        }
+
+        /* Дуже вузькі екрани (до 380px) */
+        @media (max-width: 380px) {
+            .card { padding: 12px 10px; border-radius: 20px; }
+            h1 { font-size: 1.1rem; gap: 6px; }
+            h1 span { font-size: 0.7rem; padding: 3px 10px; }
+            .tab-btn { padding: 8px 8px; font-size: 0.7rem; }
+            .flashcard-wrapper { height: 190px; }
+            .know-btn { font-size: 0.78rem; padding: 10px 6px; }
+            .match-item { font-size: 0.75rem; padding: 8px 10px; gap: 5px; }
+            .match-item .badge { width: 18px; height: 18px; font-size: 0.6rem; }
+            .gap-sentence { font-size: 0.82rem; padding: 12px 14px; }
+            .gap-input { width: 100px; font-size: 0.78rem; }
+        }
+
+        /* Ландшафтна орієнтація на низьких екранах */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .flashcard-wrapper { height: 170px; }
+            .flashcard-text { font-size: 1.05rem; }
+            .flashcard-face { padding: 14px; }
+        }
+
+        /* Висока щільність пікселів / ретична графіка */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .card { box-shadow: 0 16px 36px -14px rgba(0, 20, 30, 0.3), 0 4px 14px rgba(0, 0, 0, 0.04); }
+        }
+
+        /* Підтримка темної теми (опційно, м'яка) */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+            }
+            .card {
+                background: #1f2937;
+                border-color: #374151;
+                box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+            }
+            h1 { color: #e5e7eb; }
+            h1 span { background: #374151; color: #e5e7eb; }
+            .tabs { background: #111827; }
+            .tab-btn { color: #9ca3af; }
+            .tab-btn.active { background: #374151; color: #f9fafb; }
+            .subhead { color: #9ca3af; }
+            .stats { background: #111827; color: #e5e7eb; }
+            .stats i { background: #374151; color: #e5e7eb; }
+            .question-box,
+            .typing-card,
+            .gap-sentence { background: #111827; border-color: #374151; }
+            .prompt, .typing-definition, .gap-sentence { color: #e5e7eb; }
+            .prompt small, .typing-hint, .gap-hint-line { color: #9ca3af; }
+            .option-btn, .typing-input, .gap-input { background: #374151; color: #e5e7eb; border-color: #4b5563; }
+            .option-btn:hover:not(:disabled) { background: #4b5563; border-color: #6b7280; }
+            .flashcard-front { background: linear-gradient(135deg, #374151 0%, #1f2937 100%); border-color: #4b5563; }
+            .flashcard-front .flashcard-text { color: #e5e7eb; }
+            .flashcard-label { color: #9ca3af; }
+            .flash-counter, .flash-direction { background: #111827; color: #e5e7eb; }
+            .dir-btn { color: #9ca3af; }
+            .dir-btn.active { background: #374151; color: #f9fafb; }
+            .btn-outline { background: #374151; color: #e5e7eb; border-color: #4b5563; }
+            .btn-outline:hover:not(:disabled) { background: #4b5563; }
+            .reset-btn { color: #9ca3af; border-color: #4b5563; }
+            .reset-btn:hover { background: #374151; }
+            .match-intro, .typing-intro, .gap-intro { background: #111827; color: #d1d5db; border-color: #374151; }
+            .match-intro strong, .typing-intro strong, .gap-intro strong { color: #f9fafb; }
+            .match-scoreboard, .typing-scoreboard, .gap-scoreboard { background: #111827; color: #e5e7eb; }
+            .match-item { background: #374151; color: #e5e7eb; border-color: #4b5563; }
+            .match-item:hover:not(.matched):not(.disabled) { background: #4b5563; border-color: #6b7280; }
+            .match-item .badge { background: #1f2937; color: #9ca3af; }
+            .gap-sentence { color: #e5e7eb; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📘 Environment <span>Phrasal Verbs</span></h1>
+
+    <!-- Вкладки -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="flashcards">🃏 Flashcards 1</button>
+        <button class="tab-btn" data-tab="quiz">✏️Multiple Choice Exercise </button>
+        <button class="tab-btn" data-tab="flashcards-en">Flashcards 2</button>
+        <button class="tab-btn" data-tab="matching">🔗Matching Exercise</button>
+        <button class="tab-btn" data-tab="typing">⌨️ Spelling Exercise</button>
+        <button class="tab-btn" data-tab="gapfill">🌍 Fill in the gaps Exercise</button>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 1: FLASH-КАРТКИ (УКР) ==================== -->
+    <div class="tab-panel active" id="panel-flashcards">
+        
+
+        <div class="flash-controls">
+            <div class="flash-counter" id="flashCounter">1 / 15</div>
+            <div class="flash-direction">
+                <button class="dir-btn active" data-dir="phrase-to-translation">English → Ukrainian</button>
+                <button class="dir-btn" data-dir="translation-to-phrase">Ukrainian → English</button>
+            </div>
+        </div>
+
+        <div class="learned-banner" id="learnedBanner">
+            <h2>🎉 You have learned all the words!</h2>
+            <p>Well Done!</p>
+            <div class="learned-chips" id="learnedChips"></div>
+        </div>
+
+        <div class="know-panel" id="knowPanel">
+            <button class="know-btn know" id="knowBtn">👍 I know</button>
+            <button class="know-btn dont-know" id="dontKnowBtn">🤔 I don't know</button>
+        </div>
+
+        <div class="flashcard-wrapper" id="flashcardWrapper">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <div class="flashcard-label">Side А</div>
+                    <div class="flashcard-text" id="flashFrontText">to heat up</div>
+                    <div class="flashcard-hint">↻ Click to turn over</div>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="flashcard-label">Side B</div>
+                    <div class="flashcard-text" id="flashBackText">нагрівати(ся)</div>
+                    <div class="flashcard-hint">↻ Click to turn over</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flash-nav">
+            <button class="btn btn-outline" id="flashPrev">← Previous</button>
+            <button class="btn btn-outline" id="flashNext">Next →</button>
+        </div>
+
+        <button class="btn" id="flashShuffle" style="margin-top: 4px;">🔀 Mix the cards</button>
+
+        <div class="flash-progress">
+            <div class="flash-progress-bar" id="flashProgressBar"></div>
+        </div>
+
+        <div class="reset-container">
+            <button class="reset-btn" id="flashReset">🔄 Try again</button>
+        </div>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 2: ТЕСТ ==================== -->
+    <div class="tab-panel" id="panel-quiz">
+        <div class="subhead">Choose the correct variant</div>
+
+        <div class="stats">
+            <div>✅ Correct: <i id="scoreCorrect">0</i></div>
+            <div>📊 Total: <i id="scoreTotal">0</i></div>
+            <div>🎯 Left: <i id="remainingCount">15</i></div>
+        </div>
+
+        <div class="question-box">
+            <div class="prompt" id="questionText">to heat up</div>
+            <div class="prompt"><small id="questionHint">нагрівати(ся)</small></div>
+        </div>
+
+        <div class="options-grid" id="optionsContainer"></div>
+
+        <div class="feedback" id="feedbackMessage"></div>
+
+        <button class="btn" id="nextButton" disabled>Next →</button>
+
+        <div class="reset-container">
+            <button class="reset-btn" id="resetButton">🔄 Try again</button>
+        </div>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 3: FLASH-КАРТКИ (АНГЛ) ==================== -->
+    <div class="tab-panel" id="panel-flashcards-en">
+        <div class="subhead">Learn the definitions</div>
+
+        <div class="flash-controls">
+            <div class="flash-counter" id="flashCounterEn">1 / 15</div>
+            <div class="flash-direction">
+                <button class="dir-btn active" data-dir="definition-to-phrase">Definition → Phrasal Verb</button>
+                <button class="dir-btn" data-dir="phrase-to-definition">Phrasal Verb → Definition</button>
+            </div>
+        </div>
+
+        <div class="learned-banner" id="learnedBannerEn">
+            <h2>🎉 You have learned all the words!</h2>
+            <p>Well Done!</p>
+            <div class="learned-chips" id="learnedChipsEn"></div>
+        </div>
+
+        <div class="know-panel" id="knowPanelEn">
+            <button class="know-btn know" id="knowBtnEn">👍 I know</button>
+            <button class="know-btn dont-know" id="dontKnowBtnEn">🤔 I don't know</button>
+        </div>
+
+        <div class="flashcard-wrapper" id="flashcardWrapperEn">
+            <div class="flashcard" id="flashcardEn">
+                <div class="flashcard-face flashcard-front">
+                    <div class="flashcard-label">Side А</div>
+                    <div class="flashcard-text" id="flashFrontTextEn">to make something warmer or to become warmer</div>
+                    <div class="flashcard-hint">↻ Click to turn over</div>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="flashcard-label">Side B</div>
+                    <div class="flashcard-text" id="flashBackTextEn">to heat up</div>
+                    <div class="flashcard-hint">↻ Click to turn over</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flash-nav">
+            <button class="btn btn-outline" id="flashPrevEn">← Previous</button>
+            <button class="btn btn-outline" id="flashNextEn">Next →</button>
+        </div>
+
+        <button class="btn" id="flashShuffleEn" style="margin-top: 4px;">🔀 Mix the cards</button>
+
+        <div class="flash-progress">
+            <div class="flash-progress-bar" id="flashProgressBarEn"></div>
+        </div>
+
+        <div class="reset-container">
+            <button class="reset-btn" id="flashResetEn">🔄 Try again</button>
+        </div>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 4: З'ЄДНАННЯ ==================== -->
+    <div class="tab-panel" id="panel-matching">
+        <div class="subhead">Match the words to their definitions</div>
+
+        
+
+        <div class="match-scoreboard">
+            <div>🔗 Matches: <span class="score-badge"><span id="matchPairedCount">0</span> / 15</span></div>
+            <div>🏆 Score: <span class="score-badge"><span id="matchScore">0</span></span></div>
+        </div>
+
+        <div class="match-board">
+            <div class="match-column">
+                <div class="match-column-title">Prasal Verbs</div>
+                <div id="matchPhrases"></div>
+            </div>
+            <div class="match-column">
+                <div class="match-column-title">Definitions</div>
+                <div id="matchDefinitions"></div>
+            </div>
+        </div>
+
+        <div class="match-actions">
+            <button class="btn btn-check" id="matchCheckBtn">✅ Check</button>
+            <button class="btn btn-outline" id="matchResetBtn" style="color:#2d4059;">🔄 Try again</button>
+        </div>
+
+        <div class="match-result" id="matchResult"></div>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 5: ВВЕДЕННЯ ==================== -->
+    <div class="tab-panel" id="panel-typing">
+        <div class="subhead">Read the definition and type the correct phrasal verb</div>
+
+        <div class="typing-intro">
+            Use <strong>to</strong> before each verb.
+        </div>
+
+        <div class="typing-scoreboard">
+            <div>📝 Question: <span class="score-badge"><span id="typingCurrentNum">1</span> / 15</span></div>
+            <div>✅ Correct Answers: <span class="score-badge"><span id="typingScore">0</span></span></div>
+        </div>
+
+        <div class="typing-card">
+            <div class="typing-definition" id="typingDefinition">to make something warmer or to become warmer</div>
+            <div class="typing-input-row">
+                <input type="text" class="typing-input" id="typingInput" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn btn-submit" id="typingSubmitBtn">Check</button>
+            </div>
+            <div class="typing-hint" id="typingHint">Наприклад: to heat up</div>
+            <div class="typing-feedback" id="typingFeedback"></div>
+        </div>
+
+        <div class="typing-controls">
+            <button class="btn btn-outline" id="typingNextBtn" style="color:#2d4059;">Next →</button>
+            <button class="btn btn-outline" id="typingResetBtn" style="color:#2d4059;">🔄 Try again</button>
+        </div>
+
+        <div class="typing-result" id="typingResult"></div>
+    </div>
+
+    <!-- ==================== ВКЛАДКА 6: ENVIRONMENT GAP FILL ==================== -->
+    <div class="tab-panel" id="panel-gapfill">
+        <div class="subhead">Fill in the gaps with the correct form of phrasal verbs</div>
+
+       
+
+        <div class="gap-scoreboard">
+            <div>📝 Done: <span class="score-badge"><span id="gapFilledCount">0</span> / 10</span></div>
+            <div>🏆 Score: <span class="score-badge"><span id="gapScore">0</span></span></div>
+        </div>
+
+        <div class="gap-progress">
+            <div class="gap-progress-bar" id="gapProgressBar"></div>
+        </div>
+
+        <div id="gapSentencesContainer"></div>
+
+        <div class="gap-actions">
+            <button class="btn btn-gap-check" id="gapCheckBtn">✅ Check</button>
+            <button class="btn btn-outline" id="gapResetBtn" style="color:#2d4059;">🔄 Try again</button>
+        </div>
+
+        <div class="gap-result" id="gapResult"></div>
+    </div>
+</div>
+
+<script>
+    // ---- Словник з англійськими тлумаченнями ----
+    const wordList = [
+        { phrase: "to heat up", translation: "нагрівати(ся)", definition: "to make something warmer or to become warmer" },
+        { phrase: "to give off", translation: "виділяти (запах, тепло, світло)", definition: "to produce and send out something (a smell, heat, light)" },
+        { phrase: "to cut down", translation: "скорочувати, зменшувати", definition: "to reduce the amount, number or size of something" },
+        { phrase: "to die out", translation: "вимирати, зникати", definition: "to become less common and finally stop existing" },
+        { phrase: "to run out", translation: "закінчуватися, вичерпуватися", definition: "to use all of something and have none left" },
+        { phrase: "to use up", translation: "використовувати повністю, виснажувати", definition: "to use all of something so that there is none left" },
+        { phrase: "to carry on", translation: "продовжувати", definition: "to continue doing something" },
+        { phrase: "to look after", translation: "піклуватися, доглядати", definition: "to take care of someone or something" },
+        { phrase: "to put off", translation: "відкладати", definition: "to delay something to a later time" },
+        { phrase: "to come up with", translation: "придумувати (ідею, план)", definition: "to think of an idea, plan or solution" },
+        { phrase: "to close down", translation: "закривати (підприємство)", definition: "to stop doing business permanently" },
+        { phrase: "to rely on", translation: "покладатися на", definition: "to depend on someone or something" },
+        { phrase: "to give up", translation: "відмовлятися (від звички), здаватися", definition: "to stop doing something or to stop trying" },
+        { phrase: "set off", translation: "вирушати в дорогу", definition: "to start a journey" },
+        { phrase: "go up", translation: "зростати, підніматися", definition: "to increase in price, amount or level" }
+    ];
+
+    // ============================================================
+    //  ВКЛАДКИ
+    // ============================================================
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = {
+        flashcards: document.getElementById('panel-flashcards'),
+        quiz: document.getElementById('panel-quiz'),
+        'flashcards-en': document.getElementById('panel-flashcards-en'),
+        matching: document.getElementById('panel-matching'),
+        typing: document.getElementById('panel-typing'),
+        gapfill: document.getElementById('panel-gapfill')
+    };
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            Object.values(panels).forEach(p => p.classList.remove('active'));
+            panels[tab].classList.add('active');
+
+            if (tab === 'flashcards') renderFlashcard();
+            if (tab === 'flashcards-en') renderFlashcardEn();
+        });
+    });
+
+    // ============================================================
+    //  ТЕСТ
+    // ============================================================
+    let currentIndex = 0;
+    let shuffledWords = [];
+    let correctCount = 0;
+    let totalAnswered = 0;
+    let currentQuestionCompleted = false;
+
+    const questionTextEl = document.getElementById('questionText');
+    const questionHintEl = document.getElementById('questionHint');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackEl = document.getElementById('feedbackMessage');
+    const nextButton = document.getElementById('nextButton');
+    const resetButton = document.getElementById('resetButton');
+    const scoreCorrectEl = document.getElementById('scoreCorrect');
+    const scoreTotalEl = document.getElementById('scoreTotal');
+    const remainingCountEl = document.getElementById('remainingCount');
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function getFourOptions(correctTranslation, allTranslations) {
+        const wrongCandidates = allTranslations.filter(t => t !== correctTranslation);
+        shuffleArray(wrongCandidates);
+        const selectedWrong = wrongCandidates.slice(0, 3);
+        while (selectedWrong.length < 3) selectedWrong.push("—");
+        return shuffleArray([correctTranslation, ...selectedWrong]);
+    }
+
+    function updateStats() {
+        scoreCorrectEl.textContent = correctCount;
+        scoreTotalEl.textContent = totalAnswered;
+        const remaining = wordList.length - totalAnswered;
+        remainingCountEl.textContent = remaining >= 0 ? remaining : 0;
+    }
+
+    function renderQuestion() {
+        if (currentIndex >= shuffledWords.length) {
+            questionTextEl.textContent = "🎉 You have learned all the words!";
+            questionHintEl.textContent = "Click on Try again to revise";
+            optionsContainer.innerHTML = '';
+            feedbackEl.textContent = `Your result: ${correctCount} out of ${totalAnswered}`;
+            feedbackEl.className = 'feedback correct-msg';
+            nextButton.disabled = true;
+            currentQuestionCompleted = true;
+            return;
+        }
+
+        const currentWord = shuffledWords[currentIndex];
+        questionTextEl.textContent = currentWord.phrase;
+        questionHintEl.textContent = '';
+
+        const allTranslations = wordList.map(w => w.translation);
+        const options = getFourOptions(currentWord.translation, allTranslations);
+
+        optionsContainer.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.dataset.translation = opt;
+            btn.addEventListener('click', (e) => handleOptionClick(e, currentWord.translation));
+            optionsContainer.appendChild(btn);
+        });
+
+        currentQuestionCompleted = false;
+        feedbackEl.textContent = '';
+        feedbackEl.className = 'feedback';
+        nextButton.disabled = true;
+        updateStats();
+    }
+
+    function handleOptionClick(event, correctTranslation) {
+        if (currentQuestionCompleted) return;
+        const clickedBtn = event.currentTarget;
+        const isCorrect = clickedBtn.dataset.translation === correctTranslation;
+
+        optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+            btn.disabled = true;
+            if (btn.dataset.translation === correctTranslation) btn.classList.add('correct');
+            else if (btn === clickedBtn && !isCorrect) btn.classList.add('wrong');
+        });
+
+        totalAnswered++;
+        if (isCorrect) {
+            correctCount++;
+            feedbackEl.textContent = '✅ Correct! Well Done!';
+            feedbackEl.className = 'feedback correct-msg';
+        } else {
+            feedbackEl.textContent = `❌ Wrong. The correct answer is «${correctTranslation}»`;
+            feedbackEl.className = 'feedback wrong-msg';
+        }
+        currentQuestionCompleted = true;
+        nextButton.disabled = false;
+        updateStats();
+    }
+
+    function goToNext() {
+        if (!currentQuestionCompleted) return;
+        currentIndex++;
+        renderQuestion();
+    }
+
+    function resetQuiz() {
+        shuffledWords = shuffleArray([...wordList]);
+        currentIndex = 0;
+        correctCount = 0;
+        totalAnswered = 0;
+        currentQuestionCompleted = false;
+        feedbackEl.textContent = '';
+        feedbackEl.className = 'feedback';
+        nextButton.disabled = true;
+        renderQuestion();
+        updateStats();
+    }
+
+    function initQuiz() {
+        shuffledWords = shuffleArray([...wordList]);
+        currentIndex = 0;
+        correctCount = 0;
+        totalAnswered = 0;
+        currentQuestionCompleted = false;
+        renderQuestion();
+        updateStats();
+        nextButton.addEventListener('click', goToNext);
+        resetButton.addEventListener('click', resetQuiz);
+    }
+
+    // ============================================================
+    //  FLASH-КАРТКИ (УКР)
+    // ============================================================
+    let activeDeck = [];
+    let learnedSet = new Set();
+    let flashIndex = 0;
+    let flashDirection = 'phrase-to-translation';
+    let isFlipped = false;
+
+    const flashcard = document.getElementById('flashcard');
+    const flashFrontText = document.getElementById('flashFrontText');
+    const flashBackText = document.getElementById('flashBackText');
+    const flashCounter = document.getElementById('flashCounter');
+    const flashProgressBar = document.getElementById('flashProgressBar');
+    const flashPrev = document.getElementById('flashPrev');
+    const flashNext = document.getElementById('flashNext');
+    const flashShuffle = document.getElementById('flashShuffle');
+    const flashReset = document.getElementById('flashReset');
+    const dirButtons = document.querySelectorAll('#panel-flashcards .dir-btn');
+    const knowBtn = document.getElementById('knowBtn');
+    const dontKnowBtn = document.getElementById('dontKnowBtn');
+    const knowPanel = document.getElementById('knowPanel');
+    const learnedBanner = document.getElementById('learnedBanner');
+    const learnedChips = document.getElementById('learnedChips');
+    const flashcardWrapper = document.getElementById('flashcardWrapper');
+    const flashNavContainer = document.querySelector('#panel-flashcards .flash-nav');
+
+    function rebuildActiveDeck(preserveCurrentPhrase) {
+        activeDeck = wordList
+            .map((word, idx) => ({ ...word, originalIndex: idx }))
+            .filter(word => !learnedSet.has(word.originalIndex));
+
+        if (preserveCurrentPhrase) {
+            const foundIdx = activeDeck.findIndex(w => w.phrase === preserveCurrentPhrase);
+            flashIndex = foundIdx >= 0 ? foundIdx : 0;
+        } else {
+            flashIndex = 0;
+        }
+        renderFlashcard();
+    }
+
+    function resetFlip() {
+        if (isFlipped) {
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+        }
+    }
+
+    function renderFlashcard() {
+        const allLearned = learnedSet.size === wordList.length;
+        if (allLearned) {
+            learnedBanner.classList.add('show');
+            knowPanel.style.display = 'none';
+            flashcardWrapper.style.display = 'none';
+            flashNavContainer.style.display = 'none';
+            flashShuffle.style.display = 'none';
+            flashProgressBar.style.width = '100%';
+            flashCounter.textContent = `${wordList.length} / ${wordList.length}`;
+
+            learnedChips.innerHTML = '';
+            wordList.forEach(w => {
+                const chip = document.createElement('span');
+                chip.className = 'learned-chip';
+                chip.textContent = w.phrase;
+                learnedChips.appendChild(chip);
+            });
+            return;
+        } else {
+            learnedBanner.classList.remove('show');
+            knowPanel.style.display = 'flex';
+            flashcardWrapper.style.display = 'block';
+            flashNavContainer.style.display = 'flex';
+            flashShuffle.style.display = 'block';
+        }
+
+        if (activeDeck.length === 0) return;
+
+        const card = activeDeck[flashIndex];
+
+        if (flashDirection === 'phrase-to-translation') {
+            flashFrontText.textContent = card.phrase;
+            flashBackText.textContent = card.translation;
+        } else {
+            flashFrontText.textContent = card.translation;
+            flashBackText.textContent = card.phrase;
+        }
+
+        flashCounter.textContent = `${flashIndex + 1} / ${activeDeck.length}`;
+        const progressPercent = ((flashIndex + 1) / activeDeck.length) * 100;
+        flashProgressBar.style.width = `${progressPercent}%`;
+
+        flashPrev.disabled = flashIndex === 0;
+        flashNext.disabled = flashIndex === activeDeck.length - 1;
+
+        resetFlip();
+
+        dirButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.dir === flashDirection);
+        });
+    }
+
+    function flashPrevHandler() {
+        if (flashIndex > 0) { flashIndex--; renderFlashcard(); }
+    }
+    function flashNextHandler() {
+        if (flashIndex < activeDeck.length - 1) { flashIndex++; renderFlashcard(); }
+    }
+
+    function shuffleFlashDeck() {
+        if (activeDeck.length <= 1) return;
+        shuffleArray(activeDeck);
+        flashIndex = 0;
+        renderFlashcard();
+    }
+
+    function setDirection(dir) {
+        if (flashDirection === dir) return;
+        flashDirection = dir;
+        renderFlashcard();
+    }
+
+    function markAsKnown() {
+        if (activeDeck.length === 0) return;
+        const card = activeDeck[flashIndex];
+        const phraseToPreserve = card.phrase;
+        learnedSet.add(card.originalIndex);
+        rebuildActiveDeck(phraseToPreserve);
+    }
+
+    function markAsUnknown() {
+        if (activeDeck.length === 0) return;
+        if (activeDeck.length > 1) {
+            flashIndex = (flashIndex + 1) % activeDeck.length;
+            shuffleArray(activeDeck);
+            flashIndex = 0;
+        }
+        renderFlashcard();
+    }
+
+    function initFlashcards() {
+        learnedSet = new Set();
+        activeDeck = wordList.map((word, idx) => ({ ...word, originalIndex: idx }));
+        flashIndex = 0;
+        isFlipped = false;
+
+        renderFlashcard();
+
+        flashcardWrapper.addEventListener('click', (e) => {
+            if (learnedSet.size === wordList.length) return;
+            if (e.target.closest('.flash-nav') || e.target.closest('.flash-direction') ||
+                e.target.closest('.btn') || e.target.closest('.reset-btn') ||
+                e.target.closest('.know-panel')) {
+                return;
+            }
+            isFlipped = !isFlipped;
+            flashcard.classList.toggle('flipped', isFlipped);
+        });
+
+        flashPrev.addEventListener('click', flashPrevHandler);
+        flashNext.addEventListener('click', flashNextHandler);
+        flashShuffle.addEventListener('click', shuffleFlashDeck);
+        flashReset.addEventListener('click', () => {
+            learnedSet = new Set();
+            activeDeck = wordList.map((word, idx) => ({ ...word, originalIndex: idx }));
+            flashIndex = 0;
+            isFlipped = false;
+            renderFlashcard();
+        });
+
+        dirButtons.forEach(btn => {
+            btn.addEventListener('click', () => setDirection(btn.dataset.dir));
+        });
+
+        knowBtn.addEventListener('click', markAsKnown);
+        dontKnowBtn.addEventListener('click', markAsUnknown);
+    }
+
+    // ============================================================
+    //  FLASH-КАРТКИ (АНГЛ)
+    // ============================================================
+    let activeDeckEn = [];
+    let learnedSetEn = new Set();
+    let flashIndexEn = 0;
+    let flashDirectionEn = 'definition-to-phrase';
+    let isFlippedEn = false;
+
+    const flashcardEn = document.getElementById('flashcardEn');
+    const flashFrontTextEn = document.getElementById('flashFrontTextEn');
+    const flashBackTextEn = document.getElementById('flashBackTextEn');
+    const flashCounterEn = document.getElementById('flashCounterEn');
+    const flashProgressBarEn = document.getElementById('flashProgressBarEn');
+    const flashPrevEn = document.getElementById('flashPrevEn');
+    const flashNextEn = document.getElementById('flashNextEn');
+    const flashShuffleEn = document.getElementById('flashShuffleEn');
+    const flashResetEn = document.getElementById('flashResetEn');
+    const dirButtonsEn = document.querySelectorAll('#panel-flashcards-en .dir-btn');
+    const knowBtnEn = document.getElementById('knowBtnEn');
+    const dontKnowBtnEn = document.getElementById('dontKnowBtnEn');
+    const knowPanelEn = document.getElementById('knowPanelEn');
+    const learnedBannerEn = document.getElementById('learnedBannerEn');
+    const learnedChipsEn = document.getElementById('learnedChipsEn');
+    const flashcardWrapperEn = document.getElementById('flashcardWrapperEn');
+    const flashNavContainerEn = document.querySelector('#panel-flashcards-en .flash-nav');
+
+    function rebuildActiveDeckEn(preserveCurrentPhrase) {
+        activeDeckEn = wordList
+            .map((word, idx) => ({ ...word, originalIndex: idx }))
+            .filter(word => !learnedSetEn.has(word.originalIndex));
+
+        if (preserveCurrentPhrase) {
+            const foundIdx = activeDeckEn.findIndex(w => w.phrase === preserveCurrentPhrase);
+            flashIndexEn = foundIdx >= 0 ? foundIdx : 0;
+        } else {
+            flashIndexEn = 0;
+        }
+        renderFlashcardEn();
+    }
+
+    function resetFlipEn() {
+        if (isFlippedEn) {
+            flashcardEn.classList.remove('flipped');
+            isFlippedEn = false;
+        }
+    }
+
+    function renderFlashcardEn() {
+        const allLearnedEn = learnedSetEn.size === wordList.length;
+        if (allLearnedEn) {
+            learnedBannerEn.classList.add('show');
+            knowPanelEn.style.display = 'none';
+            flashcardWrapperEn.style.display = 'none';
+            flashNavContainerEn.style.display = 'none';
+            flashShuffleEn.style.display = 'none';
+            flashProgressBarEn.style.width = '100%';
+            flashCounterEn.textContent = `${wordList.length} / ${wordList.length}`;
+
+            learnedChipsEn.innerHTML = '';
+            wordList.forEach(w => {
+                const chip = document.createElement('span');
+                chip.className = 'learned-chip';
+                chip.textContent = w.phrase;
+                learnedChipsEn.appendChild(chip);
+            });
+            return;
+        } else {
+            learnedBannerEn.classList.remove('show');
+            knowPanelEn.style.display = 'flex';
+            flashcardWrapperEn.style.display = 'block';
+            flashNavContainerEn.style.display = 'flex';
+            flashShuffleEn.style.display = 'block';
+        }
+
+        if (activeDeckEn.length === 0) return;
+
+        const card = activeDeckEn[flashIndexEn];
+
+        if (flashDirectionEn === 'definition-to-phrase') {
+            flashFrontTextEn.textContent = card.definition;
+            flashBackTextEn.textContent = card.phrase;
+        } else {
+            flashFrontTextEn.textContent = card.phrase;
+            flashBackTextEn.textContent = card.definition;
+        }
+
+        flashCounterEn.textContent = `${flashIndexEn + 1} / ${activeDeckEn.length}`;
+        const progressPercent = ((flashIndexEn + 1) / activeDeckEn.length) * 100;
+        flashProgressBarEn.style.width = `${progressPercent}%`;
+
+        flashPrevEn.disabled = flashIndexEn === 0;
+        flashNextEn.disabled = flashIndexEn === activeDeckEn.length - 1;
+
+        resetFlipEn();
+
+        dirButtonsEn.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.dir === flashDirectionEn);
+        });
+    }
+
+    function flashPrevHandlerEn() {
+        if (flashIndexEn > 0) { flashIndexEn--; renderFlashcardEn(); }
+    }
+    function flashNextHandlerEn() {
+        if (flashIndexEn < activeDeckEn.length - 1) { flashIndexEn++; renderFlashcardEn(); }
+    }
+
+    function shuffleFlashDeckEn() {
+        if (activeDeckEn.length <= 1) return;
+        shuffleArray(activeDeckEn);
+        flashIndexEn = 0;
+        renderFlashcardEn();
+    }
+
+    function setDirectionEn(dir) {
+        if (flashDirectionEn === dir) return;
+        flashDirectionEn = dir;
+        renderFlashcardEn();
+    }
+
+    function markAsKnownEn() {
+        if (activeDeckEn.length === 0) return;
+        const card = activeDeckEn[flashIndexEn];
+        const phraseToPreserve = card.phrase;
+        learnedSetEn.add(card.originalIndex);
+        rebuildActiveDeckEn(phraseToPreserve);
+    }
+
+    function markAsUnknownEn() {
+        if (activeDeckEn.length === 0) return;
+        if (activeDeckEn.length > 1) {
+            flashIndexEn = (flashIndexEn + 1) % activeDeckEn.length;
+            shuffleArray(activeDeckEn);
+            flashIndexEn = 0;
+        }
+        renderFlashcardEn();
+    }
+
+    function initFlashcardsEn() {
+        learnedSetEn = new Set();
+        activeDeckEn = wordList.map((word, idx) => ({ ...word, originalIndex: idx }));
+        flashIndexEn = 0;
+        isFlippedEn = false;
+
+        renderFlashcardEn();
+
+        flashcardWrapperEn.addEventListener('click', (e) => {
+            if (learnedSetEn.size === wordList.length) return;
+            if (e.target.closest('.flash-nav') || e.target.closest('.flash-direction') ||
+                e.target.closest('.btn') || e.target.closest('.reset-btn') ||
+                e.target.closest('.know-panel')) {
+                return;
+            }
+            isFlippedEn = !isFlippedEn;
+            flashcardEn.classList.toggle('flipped', isFlippedEn);
+        });
+
+        flashPrevEn.addEventListener('click', flashPrevHandlerEn);
+        flashNextEn.addEventListener('click', flashNextHandlerEn);
+        flashShuffleEn.addEventListener('click', shuffleFlashDeckEn);
+        flashResetEn.addEventListener('click', () => {
+            learnedSetEn = new Set();
+            activeDeckEn = wordList.map((word, idx) => ({ ...word, originalIndex: idx }));
+            flashIndexEn = 0;
+            isFlippedEn = false;
+            renderFlashcardEn();
+        });
+
+        dirButtonsEn.forEach(btn => {
+            btn.addEventListener('click', () => setDirectionEn(btn.dataset.dir));
+        });
+
+        knowBtnEn.addEventListener('click', markAsKnownEn);
+        dontKnowBtnEn.addEventListener('click', markAsUnknownEn);
+    }
+
+    // ============================================================
+    //  ВПРАВА НА З'ЄДНАННЯ
+    // ============================================================
+    const MATCH_TOTAL = wordList.length;
+    let selectedPhraseId = null;
+    let selectedDefId = null;
+    let pairs = [];
+    let checkResults = null;
+
+    const matchPhrasesEl = document.getElementById('matchPhrases');
+    const matchDefinitionsEl = document.getElementById('matchDefinitions');
+    const matchPairedCountEl = document.getElementById('matchPairedCount');
+    const matchScoreEl = document.getElementById('matchScore');
+    const matchCheckBtn = document.getElementById('matchCheckBtn');
+    const matchResetBtn = document.getElementById('matchResetBtn');
+    const matchResultEl = document.getElementById('matchResult');
+
+    function isPhrasePaired(phraseId) { return pairs.some(p => p.phraseId === phraseId); }
+    function isDefPaired(defId) { return pairs.some(p => p.defId === defId); }
+    function getPairByPhrase(phraseId) { return pairs.find(p => p.phraseId === phraseId); }
+    function getPairByDef(defId) { return pairs.find(p => p.defId === defId); }
+
+    let matchPhraseOrder = [];
+    let matchDefOrder = [];
+
+    function renderMatchingBoard() {
+        matchPhrasesEl.innerHTML = '';
+        matchPhraseOrder.forEach(phraseId => {
+            const word = wordList[phraseId];
+            const btn = document.createElement('button');
+            btn.className = 'match-item';
+            btn.dataset.phraseId = phraseId;
+
+            if (isPhrasePaired(phraseId)) btn.classList.add('matched', 'disabled');
+            if (selectedPhraseId === phraseId && !isPhrasePaired(phraseId)) btn.classList.add('selected');
+            if (checkResults) {
+                const pair = getPairByPhrase(phraseId);
+                if (pair) btn.classList.add(pair.defId === phraseId ? 'correct-pair' : 'wrong-pair');
+            }
+
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.textContent = String.fromCharCode(65 + matchPhraseOrder.indexOf(phraseId));
+
+            const text = document.createElement('span');
+            text.className = 'text';
+            text.textContent = word.phrase;
+
+            btn.appendChild(badge);
+            btn.appendChild(text);
+            btn.addEventListener('click', () => handlePhraseClick(phraseId));
+            matchPhrasesEl.appendChild(btn);
+        });
+
+        matchDefinitionsEl.innerHTML = '';
+        matchDefOrder.forEach(defId => {
+            const word = wordList[defId];
+            const btn = document.createElement('button');
+            btn.className = 'match-item';
+            btn.dataset.defId = defId;
+
+            if (isDefPaired(defId)) btn.classList.add('matched', 'disabled');
+            if (selectedDefId === defId && !isDefPaired(defId)) btn.classList.add('selected');
+            if (checkResults) {
+                const pair = getPairByDef(defId);
+                if (pair) btn.classList.add(pair.phraseId === defId ? 'correct-pair' : 'wrong-pair');
+            }
+
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.textContent = String.fromCharCode(65 + matchDefOrder.indexOf(defId));
+
+            const text = document.createElement('span');
+            text.className = 'text';
+            text.textContent = word.definition;
+
+            btn.appendChild(badge);
+            btn.appendChild(text);
+            btn.addEventListener('click', () => handleDefClick(defId));
+            matchDefinitionsEl.appendChild(btn);
+        });
+
+        matchPairedCountEl.textContent = pairs.length;
+        if (checkResults) {
+            matchScoreEl.textContent = pairs.filter(p => p.phraseId === p.defId).length;
+        } else {
+            matchScoreEl.textContent = '—';
+        }
+        matchCheckBtn.disabled = pairs.length === 0 || checkResults !== null;
+    }
+
+    function handlePhraseClick(phraseId) {
+        if (checkResults || isPhrasePaired(phraseId)) return;
+        selectedPhraseId = (selectedPhraseId === phraseId) ? null : phraseId;
+        if (selectedPhraseId !== null && selectedDefId !== null) {
+            createPair(selectedPhraseId, selectedDefId);
+            selectedPhraseId = null;
+            selectedDefId = null;
+        }
+        renderMatchingBoard();
+    }
+
+    function handleDefClick(defId) {
+        if (checkResults || isDefPaired(defId)) return;
+        selectedDefId = (selectedDefId === defId) ? null : defId;
+        if (selectedPhraseId !== null && selectedDefId !== null) {
+            createPair(selectedPhraseId, selectedDefId);
+            selectedPhraseId = null;
+            selectedDefId = null;
+        }
+        renderMatchingBoard();
+    }
+
+    function createPair(phraseId, defId) {
+        if (isPhrasePaired(phraseId) || isDefPaired(defId)) return;
+        pairs.push({ phraseId, defId });
+    }
+
+    function checkMatching() {
+        if (pairs.length === 0) return;
+        checkResults = pairs.map(p => ({
+            phraseId: p.phraseId,
+            defId: p.defId,
+            correct: p.phraseId === p.defId
+        }));
+
+        const correctCount = checkResults.filter(r => r.correct).length;
+        const total = MATCH_TOTAL;
+
+        matchScoreEl.textContent = correctCount;
+        matchResultEl.className = 'match-result show';
+        if (correctCount === total) {
+            matchResultEl.classList.add('perfect');
+            matchResultEl.innerHTML = `🏆 Perfect! You have matched all ${total} pairs! Your score: <strong>${correctCount} / ${total}</strong> points.`;
+        } else if (correctCount >= total / 2) {
+            matchResultEl.classList.add('good');
+            matchResultEl.innerHTML = `👍 Good! You have got <strong>${correctCount} / ${total}</strong> points. Try again to improve your result.`;
+        } else {
+            matchResultEl.classList.add('poor');
+            matchResultEl.innerHTML = `🤔 You have got <strong>${correctCount} / ${total}</strong> points. Practise Flashcards 2 Set one more time and try again.`;
+        }
+
+        matchCheckBtn.disabled = true;
+        renderMatchingBoard();
+    }
+
+    function resetMatching() {
+        selectedPhraseId = null;
+        selectedDefId = null;
+        pairs = [];
+        checkResults = null;
+        matchResultEl.className = 'match-result';
+        matchResultEl.innerHTML = '';
+        matchPhraseOrder = shuffleArray([...Array(MATCH_TOTAL).keys()]);
+        matchDefOrder = shuffleArray([...Array(MATCH_TOTAL).keys()]);
+        renderMatchingBoard();
+    }
+
+    function initMatching() {
+        matchPhraseOrder = shuffleArray([...Array(MATCH_TOTAL).keys()]);
+        matchDefOrder = shuffleArray([...Array(MATCH_TOTAL).keys()]);
+        pairs = [];
+        selectedPhraseId = null;
+        selectedDefId = null;
+        checkResults = null;
+
+        renderMatchingBoard();
+        matchCheckBtn.addEventListener('click', checkMatching);
+        matchResetBtn.addEventListener('click', resetMatching);
+    }
+
+    // ============================================================
+    //  ВПРАВА НА ВВЕДЕННЯ
+    // ============================================================
+    let typingOrder = [];
+    let typingIndex = 0;
+    let typingScore = 0;
+    let typingAnswered = 0;
+    let typingCurrentCompleted = false;
+
+    const typingDefinitionEl = document.getElementById('typingDefinition');
+    const typingInput = document.getElementById('typingInput');
+    const typingSubmitBtn = document.getElementById('typingSubmitBtn');
+    const typingFeedback = document.getElementById('typingFeedback');
+    const typingCurrentNumEl = document.getElementById('typingCurrentNum');
+    const typingScoreEl = document.getElementById('typingScore');
+    const typingNextBtn = document.getElementById('typingNextBtn');
+    const typingResetBtn = document.getElementById('typingResetBtn');
+    const typingResultEl = document.getElementById('typingResult');
+    const typingHintEl = document.getElementById('typingHint');
+
+    function normalizeAnswer(str) {
+        return str.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
+    }
+    function normalizePhrase(str) { return normalizeAnswer(str); }
+
+    function renderTypingQuestion() {
+        if (typingIndex >= typingOrder.length) {
+            typingDefinitionEl.textContent = '🎉 Great Job!';
+            typingInput.value = '';
+            typingInput.disabled = true;
+            typingSubmitBtn.disabled = true;
+            typingNextBtn.disabled = true;
+            typingCurrentNumEl.textContent = typingOrder.length;
+            typingHintEl.textContent = 'Click on «Try again»';
+
+            typingResultEl.className = 'typing-result show';
+            if (typingScore === typingOrder.length) {
+                typingResultEl.classList.add('perfect');
+                typingResultEl.innerHTML = `🏆 Perfect! You have got <strong>${typingScore} / ${typingOrder.length}</strong> points!`;
+            } else if (typingScore >= typingOrder.length / 2) {
+                typingResultEl.classList.add('good');
+                typingResultEl.innerHTML = `👍 Good! You have got <strong>${typingScore} / ${typingOrder.length}</strong> points.`;
+            } else {
+                typingResultEl.classList.add('poor');
+                typingResultEl.innerHTML = `🤔 You have got <strong>${typingScore} / ${typingOrder.length}</strong> points. Try again!`;
+            }
+            typingFeedback.textContent = '';
+            typingFeedback.className = 'typing-feedback';
+            return;
+        }
+
+        const word = wordList[typingOrder[typingIndex]];
+        typingDefinitionEl.textContent = word.definition;
+        typingInput.value = '';
+        typingInput.disabled = false;
+        typingInput.className = 'typing-input';
+        typingInput.focus();
+        typingSubmitBtn.disabled = false;
+        typingNextBtn.disabled = true;
+        typingFeedback.textContent = '';
+        typingFeedback.className = 'typing-feedback';
+        typingResultEl.className = 'typing-result';
+        typingHintEl.textContent = 'Type the word and click on «Check»';
+        typingCurrentNumEl.textContent = typingIndex + 1;
+        typingCurrentCompleted = false;
+    }
+
+    function checkTypingAnswer() {
+        if (typingCurrentCompleted) return;
+        if (typingIndex >= typingOrder.length) return;
+
+        const userAnswer = typingInput.value;
+        if (userAnswer.trim() === '') {
+            typingFeedback.textContent = 'Please, type your answer.';
+            typingFeedback.className = 'typing-feedback wrong-msg';
+            return;
+        }
+
+        const word = wordList[typingOrder[typingIndex]];
+        const normalizedUser = normalizeAnswer(userAnswer);
+        const normalizedCorrect = normalizePhrase(word.phrase);
+        const isCorrect = normalizedUser === normalizedCorrect;
+
+        typingAnswered++;
+        if (isCorrect) {
+            typingScore++;
+            typingInput.classList.add('correct-input');
+            typingFeedback.textContent = '✅ Correct';
+            typingFeedback.className = 'typing-feedback correct-msg';
+        } else {
+            typingInput.classList.add('wrong-input');
+            typingFeedback.textContent = `❌ Wrong. Correct answer is «${word.phrase}»`;
+            typingFeedback.className = 'typing-feedback wrong-msg';
+        }
+
+        typingInput.disabled = true;
+        typingSubmitBtn.disabled = true;
+        typingNextBtn.disabled = false;
+        typingCurrentCompleted = true;
+        typingScoreEl.textContent = typingScore;
+        typingHintEl.textContent = 'Click on «Next», to continue';
+    }
+
+    function nextTypingQuestion() {
+        if (!typingCurrentCompleted && typingIndex < typingOrder.length) return;
+        typingIndex++;
+        renderTypingQuestion();
+    }
+
+    function resetTyping() {
+        typingOrder = shuffleArray([...Array(wordList.length).keys()]);
+        typingIndex = 0;
+        typingScore = 0;
+        typingAnswered = 0;
+        typingCurrentCompleted = false;
+        typingScoreEl.textContent = '0';
+        typingResultEl.className = 'typing-result';
+        typingResultEl.innerHTML = '';
+        renderTypingQuestion();
+    }
+
+    function initTyping() {
+        typingOrder = shuffleArray([...Array(wordList.length).keys()]);
+        typingIndex = 0;
+        typingScore = 0;
+        typingAnswered = 0;
+        typingCurrentCompleted = false;
+        typingScoreEl.textContent = '0';
+        renderTypingQuestion();
+
+        typingSubmitBtn.addEventListener('click', checkTypingAnswer);
+        typingNextBtn.addEventListener('click', nextTypingQuestion);
+        typingResetBtn.addEventListener('click', resetTyping);
+
+        typingInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (typingCurrentCompleted) nextTypingQuestion();
+                else checkTypingAnswer();
+            }
+        });
+    }
+
+    // ============================================================
+    //  ENVIRONMENT GAP FILL
+    // ============================================================
+    const gapSentences = [
+        {
+            text: "The Earth's atmosphere ___ because of too much carbon dioxide.",
+            base: "to heat up",
+            accepted: ["is heating up", "heats up", "is heated up", "heat up", "has heated up"],
+            
+        },
+        {
+            text: "Many factories ___ harmful gases into the air every day.",
+            base: "to give off",
+            accepted: ["give off", "gave off", "are giving off", "have given off", "gives off"],
+            
+        },
+        {
+            text: "We need to ___ on the amount of plastic we produce.",
+            base: "to cut down",
+            accepted: ["cut down", "to cut down", "cutting down"],
+            
+        },
+        {
+            text: "Many species of animals will ___ if we don't protect their habitats.",
+            base: "to die out",
+            accepted: ["die out", "to die out", "have died out", "be dying out"],
+           
+        },
+        {
+            text: "Fossil fuels will ___ sooner or later, so we need renewable energy.",
+            base: "to run out",
+            accepted: ["run out", "to run out", "have run out", "be running out"],
+            
+        },
+        {
+            text: "If we ___ all natural resources, future generations will suffer.",
+            base: "to use up",
+            accepted: ["use up", "used up", "have used up", "are using up"],
+            
+        },
+        {
+            text: "Scientists must ___ their research to find new ways to save the planet.",
+            base: "to carry on",
+            accepted: ["carry on", "to carry on", "carrying on", "have carried on"],
+            
+        },
+        {
+            text: "We should ___ our planet and its ecosystems better.",
+            base: "to look after",
+            accepted: ["look after", "to look after", "looking after", "have looked after"],
+           
+        },
+        {
+            text: "Some governments ___ taking action on climate change, which is dangerous.",
+            base: "to put off",
+            accepted: ["put off", "are putting off", "have put off", "to put off"],
+                    },
+        {
+            text: "Scientists need to ___ new technologies to reduce pollution.",
+            base: "to come up with",
+            accepted: ["come up with", "to come up with", "coming up with", "have come up with"],
+           
+        }
+    ];
+
+    const GAP_TOTAL = gapSentences.length;
+    let gapUserAnswers = new Array(GAP_TOTAL).fill('');
+    let gapChecked = false;
+    let gapScore = 0;
+
+    const gapSentencesContainer = document.getElementById('gapSentencesContainer');
+    const gapFilledCountEl = document.getElementById('gapFilledCount');
+    const gapScoreEl = document.getElementById('gapScore');
+    const gapProgressBar = document.getElementById('gapProgressBar');
+    const gapCheckBtn = document.getElementById('gapCheckBtn');
+    const gapResetBtn = document.getElementById('gapResetBtn');
+    const gapResultEl = document.getElementById('gapResult');
+
+    function renderGapSentences() {
+        gapSentencesContainer.innerHTML = '';
+
+        gapSentences.forEach((item, idx) => {
+            const sentenceDiv = document.createElement('div');
+            sentenceDiv.className = 'gap-sentence';
+            sentenceDiv.id = `gap-sentence-${idx}`;
+
+            const parts = item.text.split('___');
+
+            const numSpan = document.createElement('span');
+            numSpan.className = 'gap-num';
+            numSpan.textContent = idx + 1;
+            sentenceDiv.appendChild(numSpan);
+
+            if (parts[0]) {
+                sentenceDiv.appendChild(document.createTextNode(parts[0]));
+            }
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'gap-input';
+            input.dataset.gapIndex = idx;
+            input.placeholder = '...';
+            input.autocomplete = 'off';
+            input.autocapitalize = 'off';
+            input.spellcheck = false;
+            input.value = gapUserAnswers[idx] || '';
+            input.disabled = gapChecked;
+
+            if (gapChecked) {
+                const normalizedUser = normalizeAnswer(gapUserAnswers[idx]);
+                const isCorrect = item.accepted.some(acc => normalizeAnswer(acc) === normalizedUser);
+                input.classList.add(isCorrect ? 'correct-input' : 'wrong-input');
+            }
+
+            input.addEventListener('input', (e) => {
+                gapUserAnswers[idx] = e.target.value;
+                updateGapProgress();
+            });
+
+            sentenceDiv.appendChild(input);
+
+            if (parts[1]) {
+                sentenceDiv.appendChild(document.createTextNode(parts[1]));
+            }
+
+            const correction = document.createElement('span');
+            correction.className = 'gap-correction';
+            correction.textContent = `→ ${item.accepted[0]}`;
+            sentenceDiv.appendChild(correction);
+
+            if (item.hint) {
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'gap-hint-line';
+                hintDiv.textContent = '💡 ' + item.hint;
+                sentenceDiv.appendChild(hintDiv);
+            }
+
+            gapSentencesContainer.appendChild(sentenceDiv);
+        });
+
+        updateGapProgress();
+    }
+
+    function updateGapProgress() {
+        const filled = gapUserAnswers.filter(a => a.trim() !== '').length;
+        gapFilledCountEl.textContent = filled;
+        const percent = (filled / GAP_TOTAL) * 100;
+        gapProgressBar.style.width = `${percent}%`;
+        gapCheckBtn.disabled = gapChecked || filled === 0;
+    }
+
+    function checkGapFill() {
+        if (gapChecked) return;
+
+        let correct = 0;
+        gapSentences.forEach((item, idx) => {
+            const normalizedUser = normalizeAnswer(gapUserAnswers[idx]);
+            const isCorrect = item.accepted.some(acc => normalizeAnswer(acc) === normalizedUser);
+            if (isCorrect) correct++;
+        });
+
+        gapScore = correct;
+        gapChecked = true;
+        gapScoreEl.textContent = correct;
+
+        renderGapSentences();
+
+        const total = GAP_TOTAL;
+        gapResultEl.className = 'gap-result show';
+        if (correct === total) {
+            gapResultEl.classList.add('perfect');
+            gapResultEl.innerHTML = `🏆 Perfect! You have filled in all ${total} gaps! Your score: <strong>${correct} / ${total}</strong> points.`;
+        } else if (correct >= total / 2) {
+            gapResultEl.classList.add('good');
+            gapResultEl.innerHTML = `👍 Good! You have got <strong>${correct} / ${total}</strong> points. Check the correct answers and try again later.`;
+        } else {
+            gapResultEl.classList.add('poor');
+            gapResultEl.innerHTML = `🤔 You have got <strong>${correct} / ${total}</strong> points. Revise phrasal verbs and try again later.`;
+        }
+
+        gapCheckBtn.disabled = true;
+    }
+
+    function resetGapFill() {
+        gapUserAnswers = new Array(GAP_TOTAL).fill('');
+        gapChecked = false;
+        gapScore = 0;
+        gapScoreEl.textContent = '0';
+        gapResultEl.className = 'gap-result';
+        gapResultEl.innerHTML = '';
+        renderGapSentences();
+    }
+
+    function initGapFill() {
+        gapUserAnswers = new Array(GAP_TOTAL).fill('');
+        gapChecked = false;
+        gapScore = 0;
+        gapScoreEl.textContent = '0';
+        renderGapSentences();
+
+        gapCheckBtn.addEventListener('click', checkGapFill);
+        gapResetBtn.addEventListener('click', resetGapFill);
+    }
+
+    // ============================================================
+    //  ЗАПУСК
+    // ============================================================
+    initQuiz();
+    initFlashcards();
+    initFlashcardsEn();
+    initMatching();
+    initTyping();
+    initGapFill();
+</script>
+</body>
+</html>
