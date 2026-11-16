@@ -48,34 +48,34 @@
             font-weight: 500;
         }
 
-        /* --- Вкладки: горизонтальний скрол на вузьких екранах --- */
+        /* --- Вкладки: перенос на новий рядок без прокручування --- */
         .tabs {
             display: flex;
-            gap: 6px;
+            flex-wrap: wrap;
+            gap: 4px;
             background: #eef3f8;
             padding: 6px;
-            border-radius: 60px;
+            border-radius: 20px;
             margin-bottom: 22px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            scroll-behavior: smooth;
+            overflow: visible;
         }
-        .tabs::-webkit-scrollbar { display: none; }
         .tab-btn {
-            flex: 1 0 auto;
-            min-width: fit-content;
-            white-space: nowrap;
+            flex: 1 1 calc(33.333% - 4px);
+            min-width: 0;
+            white-space: normal;
+            text-align: center;
             background: transparent;
             border: none;
-            padding: 11px 14px;
-            border-radius: 40px;
-            font-size: clamp(0.72rem, 1.6vw, 0.92rem);
+            padding: 9px 10px;
+            border-radius: 14px;
+            font-size: clamp(0.68rem, 1.5vw, 0.85rem);
             font-weight: 600;
             color: #4a627a;
             cursor: pointer;
             transition: all 0.15s ease;
             font-family: inherit;
+            line-height: 1.25;
+            word-break: break-word;
         }
         .tab-btn:hover { color: #1e3a5f; }
         .tab-btn.active {
@@ -995,8 +995,13 @@
         @media (max-width: 540px) {
             body { padding: 8px; }
             .card { border-radius: 24px; padding: 16px 14px; }
-            .tabs { border-radius: 24px; padding: 5px; margin-bottom: 18px; }
-            .tab-btn { padding: 9px 10px; border-radius: 20px; }
+            .tabs { border-radius: 16px; padding: 5px; margin-bottom: 18px; }
+            .tab-btn {
+                flex: 1 1 calc(50% - 4px);
+                border-radius: 12px;
+                padding: 8px 6px;
+                font-size: 0.68rem;
+            }
             .options-grid { grid-template-columns: 1fr; gap: 8px; }
             .match-board { grid-template-columns: 1fr; gap: 18px; }
             .match-item { min-height: 46px; }
@@ -1018,7 +1023,7 @@
             .card { padding: 12px 10px; border-radius: 20px; }
             h1 { font-size: 1.1rem; gap: 6px; }
             h1 span { font-size: 0.7rem; padding: 3px 10px; }
-            .tab-btn { padding: 8px 8px; font-size: 0.7rem; }
+            .tab-btn { padding: 7px 5px; font-size: 0.62rem; }
             .flashcard-wrapper { height: 190px; }
             .know-btn { font-size: 0.78rem; padding: 10px 6px; }
             .match-item { font-size: 0.75rem; padding: 8px 10px; gap: 5px; }
